@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#11100f" />
+    <title>Projet : PC indestructible</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Barlow+Condensed:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="motion.css" />
+    <link rel="stylesheet" href="slots.css" />
+    <link rel="stylesheet" href="snake.css" />
+    <link rel="stylesheet" href="shooter.css" />
+    <link rel="stylesheet" href="boss.css" />
+    <link rel="stylesheet" href="dev-nav.css" />
+  </head>
+  <body>
+    <div class="noise" aria-hidden="true"></div>
+    <header class="topbar">
+      <span>V.M. LABS / ANNIVERSAIRE</span><span id="progress">01 / 07</span>
+    </header>
+    <nav class="dev-nav" id="dev-nav" aria-label="Raccourcis développeur">
+      <span>DEV / ALLER À</span>
+      <button data-dev-step="1">01 INTRO</button><button data-dev-step="2">02 TEST PC</button><button data-dev-step="3">03 RISQUES</button><button data-dev-step="4">04 TORTURE</button><button data-dev-step="5">05 FONDS</button><button data-dev-step="6">06 MONTANTS</button><button data-dev-step="7">07 FINAL</button>
+    </nav>
+
+    <main id="app">
+      <section class="step active intro" data-step="1">
+        <p class="kicker">Dossier confidentiel · Rapport n°666</p>
+        <h1>ALERTE<br />MATÉRIELLE</h1>
+        <div class="intro-grid">
+          <p class="lead">Après plusieurs années d’observation, une conclusion s’impose : aucun objet électronique classique n’est suffisamment robuste pour <strong class="name">toi</strong>.</p>
+          <div class="danger-stamp">DANGER<br /><span>MATÉRIEL</span></div>
+        </div>
+        <p class="microcopy">Probabilité de survie d’un PC ordinaire : 3,7 %</p>
+        <button class="action" data-next>VOIR LES RÉSULTATS <b>→</b></button>
+      </section>
+
+      <section class="step drop-step" data-step="2">
+        <p class="kicker">Essai comparatif / protocole 01</p>
+        <h2><span>UN PC NORMAL.</span><br />UNE MAUVAISE IDÉE.</h2>
+        <div class="drop-zone" id="drop-zone">
+          <div class="laptop standard" id="standard-pc"><i></i><b></b></div>
+          <div class="blast" id="blast">✹</div>
+          <div class="floor"></div>
+        </div>
+        <div class="test-controls">
+          <p id="drop-copy">Test n°1 : ordinateur standard. Lancer la chute à vos risques et périls.</p>
+          <button class="action" id="drop-button">LANCER LE TEST <b>↓</b></button>
+        </div>
+      </section>
+
+      <section class="step checklist-step" data-step="3">
+        <p class="kicker">Cahier des charges / validation obligatoire</p>
+        <h2>IDENTIFIE LES<br /><em>RISQUES.</em></h2>
+        <p class="lead">Coche tout. On veut savoir exactement à quoi le futur matériel va devoir survivre.</p>
+        <div class="checklist" id="checklist"></div>
+        <div class="threat"><div class="threat-label"><span>Niveau de menace identifié</span><b id="threat-number">00 %</b></div><div class="meter"><i id="meter-fill"></i></div></div>
+        <button class="action disabled" data-next id="check-next" disabled>VALIDER LE DIAGNOSTIC <b>→</b></button>
+      </section>
+
+      <section class="step endurance-step" data-step="4">
+        <p class="kicker">Test de résistance / prototype B-666</p>
+        <h2>FAIS-LUI<br /><em>SUBIR L’ENFER.</em></h2>
+        <div class="test-machine">
+          <div class="laptop armored" id="test-pc"><i></i><b></b><u></u></div>
+          <div class="test-effects" aria-hidden="true">
+            <span class="effect-drop">↓</span>
+            <span class="effect-splash">✦</span>
+            <span class="effect-roller"><i></i><b></b><em></em></span>
+            <span class="effect-bag">▰</span>
+          </div>
+          <div class="machine-status" id="machine-status">SYSTÈME PRÊT.</div>
+        </div>
+        <div class="torture-buttons" id="torture-buttons"></div>
+        <button class="action hidden" id="daily-button">TEST FINAL : UTILISATION QUOTIDIENNE PAR <span class="name">TOI</span> <b>⚠</b></button>
+        <p class="failure" id="failure"></p>
+      </section>
+
+      <section class="step solution" data-step="5">
+        <p class="kicker">Résolution du problème / équipe d’intervention</p>
+        <h2>ON A TROUVÉ<br />LA <em>SOLUTION.</em></h2>
+        <p class="lead">Parce qu’un ordinateur digne de ce nom ne pousse pas sur les arbres, <strong class="participants">Papa, Maman, Rosaly et Victorien</strong> ont ouvert un fonds d’urgence pour ton prochain PC.</p>
+        <div class="crew" id="crew" aria-label="L'équipe du fonds"></div>
+        <p class="microcopy">Mission : te laisser choisir ta future machine de guerre.</p>
+        <button class="action" data-next>ACCÉDER AU FONDS <b>→</b></button>
+      </section>
+
+      <section class="step money-step" data-step="6">
+        <p class="kicker">Fonds d’urgence / déblocage progressif</p>
+        <h2 id="money-title">10 €<br /><em>ÇA VA ?</em></h2>
+        <p class="lead" id="money-copy">Une petite participation symbolique pour démarrer. Ou alors…</p>
+        <div class="choice-row" id="money-choices"></div>
+      </section>
+
+      <section class="step finale" data-step="7">
+        <p class="kicker">Dossier clôturé / cadeau d’anniversaire</p>
+        <h2>LE FONDS<br />EST DE</h2>
+        <div class="final-money" id="final-money">1 000 €</div>
+        <p class="lead">De la part de <strong class="participants">Papa, Maman, Rosaly et Victorien</strong>, pour choisir le prochain ordinateur qui tentera de te suivre.</p>
+        <button class="action" id="promise">PROMIS, J’EN PRENDRAI SOIN. <b>♥</b></button>
+        <p class="warranty" id="warranty">Cette déclaration n’est pas couverte par la garantie.</p>
+        <div class="confetti" aria-hidden="true"></div>
+      </section>
+    </main>
+    <script src="script.js"></script>
+  </body>
+</html>
