@@ -173,8 +173,8 @@ function renderSlots() {
 }
 
 function renderSnake() {
-  $('#money-title').innerHTML = `${money(CONFIG.paliers.at(-1))}<br /><em>SNAKE POUR LE ×2.</em>`;
-  $('#money-copy').textContent = 'Ramasse 30 rollers pour tenter de gagner les 1 000 €. Les bords téléportent. Tu as trois vies.';
+  $('#money-title').innerHTML = `${money(CONFIG.paliers.at(-1))}<br /><em>SNAKE POUR ENCORE PLUS DE €.</em>`;
+  $('#money-copy').textContent = 'Ramasse 30 rollers pour tenter de gagner. Les bords téléportent. Tu as trois vies.';
   $('#money-choices').innerHTML = `
     <div class="snake-wrap">
       <canvas id="snake-canvas" width="504" height="504" aria-label="Jeu Snake"></canvas>
@@ -190,8 +190,17 @@ function renderSnake() {
   const rollerImage = new Image();
   headImage.src = 'assets/camille-head.png';
   rollerImage.src = 'assets/rollers.png';
-  let snake, apples, direction, queuedDirection, score, lives, timer, playing, snakeFinished = false;
+  let snake, apples, direction, queuedDirection, score, lives, timer, playing, snakeFinished = false, resumePending = false;
   const directions = { up:[0,-1], down:[0,1], left:[-1,0], right:[1,0] };
+  function buildSnake(length) {
+    const path = [{x:7,y:7}];
+    for (let x=6; x>=0 && path.length<length; x--) path.push({x,y:7});
+    for (let y=8; path.length<length && y<grid; y++) {
+      const forwards = y % 2 === 0;
+      for (let column=0; column<grid && path.length<length; column++) path.push({x: forwards ? column : grid-1-column, y});
+    }
+    return path;
+  }
   function addRoller() { let next; do { next = { x: Math.floor(Math.random() * grid), y: Math.floor(Math.random() * grid) }; } while (snake.some(p => p.x === next.x && p.y === next.y) || apples.some(p => p.x === next.x && p.y === next.y)); apples.push(next); }
   function refillRollers() { while (apples.length < 5) addRoller(); }
   function draw() {
@@ -217,10 +226,9 @@ function renderSnake() {
   function resetAfterHit(message) {
     clearInterval(timer); playing = false; canvas.classList.add('snake-hit');
     $('#snake-result').textContent = message;
-    setTimeout(() => {
-      canvas.classList.remove('snake-hit');
-      snake=[{x:7,y:7},{x:6,y:7},{x:5,y:7}]; direction=[1,0]; queuedDirection=direction; apples=[]; refillRollers(); draw(); playing=true; timer=setInterval(tick,145);
-    }, 750);
+    resumePending = true;
+    $('#snake-start').textContent = `REPRENDRE — ${lives} VIE${lives > 1 ? 'S' : ''} →`;
+    $('#snake-start').disabled = false;
   }
   function tick() {
     direction = queuedDirection;
@@ -238,15 +246,16 @@ function renderSnake() {
     draw();
   }
   function setDirection(next) { if(!playing) return; const n=directions[next]; if(n[0] !== -direction[0] || n[1] !== -direction[1]) queuedDirection=n; }
-  function start() { clearInterval(timer); snakeFinished=false; snake=[{x:7,y:7},{x:6,y:7},{x:5,y:7}]; direction=[1,0]; queuedDirection=direction; score=0; lives=3; apples=[]; refillRollers(); playing=true; draw(); $('#snake-score').textContent='ROLLERS : 0 / 30'; updateLives(); $('#snake-result').textContent=''; $('#snake-start').textContent='JEU EN COURS…'; $('#snake-start').disabled=true; timer=setInterval(tick,125); }
-  $('#snake-start').addEventListener('click', () => snakeFinished ? renderShooter() : start());
+  function resumeGame() { canvas.classList.remove('snake-hit'); snake=buildSnake(3+score); direction=[1,0]; queuedDirection=direction; apples=[]; refillRollers(); resumePending=false; playing=true; draw(); $('#snake-result').textContent=''; $('#snake-start').textContent='JEU EN COURS…'; $('#snake-start').disabled=true; timer=setInterval(tick,125); }
+  function start() { clearInterval(timer); snakeFinished=false; resumePending=false; snake=buildSnake(3); direction=[1,0]; queuedDirection=direction; score=0; lives=3; apples=[]; refillRollers(); playing=true; draw(); $('#snake-score').textContent='ROLLERS : 0 / 30'; updateLives(); $('#snake-result').textContent=''; $('#snake-start').textContent='JEU EN COURS…'; $('#snake-start').disabled=true; timer=setInterval(tick,125); }
+  $('#snake-start').addEventListener('click', () => snakeFinished ? renderShooter() : (resumePending ? resumeGame() : start()));
   $$('[data-dir]').forEach(button => button.addEventListener('click', () => setDirection(button.dataset.dir)));
   let touchStart;
   canvas.addEventListener('touchstart', event => { touchStart = event.changedTouches[0]; }, { passive: true });
   canvas.addEventListener('touchend', event => { if(!touchStart) return; const touch = event.changedTouches[0], dx = touch.clientX-touchStart.clientX, dy = touch.clientY-touchStart.clientY; if(Math.max(Math.abs(dx),Math.abs(dy)) > 18) setDirection(Math.abs(dx)>Math.abs(dy) ? (dx>0?'right':'left') : (dy>0?'down':'up')); touchStart=null; }, { passive: true });
   const keyHandler = event => { const key = {ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right'}[event.key]; if(key && playing){event.preventDefault();setDirection(key);} };
   document.addEventListener('keydown', keyHandler);
-  snake=[{x:7,y:7},{x:6,y:7},{x:5,y:7}]; direction=[1,0]; queuedDirection=direction; score=0; lives=3; apples=[]; refillRollers();
+  snake=buildSnake(3); direction=[1,0]; queuedDirection=direction; score=0; lives=3; apples=[]; refillRollers();
   headImage.onload = draw;
   rollerImage.onload = draw;
   draw();
@@ -259,13 +268,14 @@ function renderShooter() {
     <div class="shooter-wrap">
       <canvas id="shooter-canvas" width="420" height="430" aria-label="Jeu de vaisseau pixelisé"></canvas>
       <p class="shooter-status" id="shooter-status">VAGUE 1 — DÉTRUIS LES INTRUS</p>
+      <div class="ship-health" aria-label="Vie du vaisseau"><span>VIE CAMILLE</span><i><b id="ship-health-fill"></b></i></div>
       <div class="shooter-controls" aria-label="Contrôles du vaisseau"><button data-ship="left" aria-label="Aller à gauche">◀</button><button class="shoot" data-ship="shoot" aria-label="Tirer">TIRER</button><button data-ship="right" aria-label="Aller à droite">▶</button></div>
       <button class="action" id="shooter-start">LANCER LA MISSION <b>→</b></button>
       <p class="shooter-dialogue" id="shooter-dialogue"></p>
     </div>`;
   const canvas = $('#shooter-canvas'), ctx = canvas.getContext('2d');
   const head = new Image(), logo = new Image(); head.src='assets/camille-head.png'; logo.src='assets/urssaf-logo.png';
-  let playerX=190, bullets=[], enemyBullets=[], enemies=[], boss=null, running=false, lastShot=0, lastBossShot=0, bossPauseUntil=0;
+  let playerX=190, bullets=[], enemyBullets=[], enemies=[], boss=null, running=false, lastShot=0, lastBossShot=0, bossPauseUntil=0, shipHealth=100;
   const bossLines=['DONNE-MOI TOUT TON ARGENT, CAMILLE.', 'T’AS PENSÉ À FAIRE TA DÉCLARATION ?', 'TU AS LE DROIT À L’ERREUR, CAMILLE, TU SAIS ?'];
   function makeEnemies(){ enemies=Array.from({length:12},(_,i)=>({x:30+(i%6)*64,y:52+Math.floor(i/6)*48,alive:true,phase:i})); }
   function rect(x,y,w,h,color){ctx.fillStyle=color;ctx.fillRect(Math.round(x),Math.round(y),w,h);}
@@ -274,10 +284,11 @@ function renderShooter() {
   function drawBoss(){ const x=boss.x,y=38; ctx.fillStyle='#0c5cac';ctx.fillRect(x,y,140,70);ctx.fillStyle='#5da6e8';ctx.fillRect(x+12,y+12,116,46);ctx.fillStyle='#ff3b30';ctx.fillRect(x+4,y+63,132,12); if(logo.complete&&logo.naturalWidth)ctx.drawImage(logo,x+30,y+19,80,34); else {ctx.fillStyle='#fff';ctx.font='bold 18px Arial';ctx.fillText('URSSAF',x+30,y+43);} ctx.fillStyle='#f3efe2';ctx.fillRect(110,12,200,9);ctx.fillStyle='#ff3b30';ctx.fillRect(110,12,200*(boss.hp/boss.maxHp),9); }
   function draw(){ctx.fillStyle='#070908';ctx.fillRect(0,0,canvas.width,canvas.height);for(let i=0;i<55;i++){ctx.fillStyle=i%4?'#f3efe2':'#ceff1a';ctx.fillRect((i*79)%420,(i*43)%430,2,2)} enemies.filter(e=>e.alive).forEach(e=>enemy(e.x,e.y)); bullets.forEach(b=>rect(b.x,b.y,4,13,'#ceff1a'));enemyBullets.forEach(b=>rect(b.x,b.y,7,15,'#ff3b30')); if(boss)drawBoss();pixelShip(playerX,350);}
   function shoot(){if(!running||Date.now()-lastShot<220)return; bullets.push({x:playerX+23,y:340});lastShot=Date.now();}
+  function hitShip(){shipHealth=Math.max(8,shipHealth-12);$('#ship-health-fill').style.width=`${shipHealth}%`;$('.ship-health').classList.toggle('critical',shipHealth<=32);canvas.classList.add('ship-hit');setTimeout(()=>canvas.classList.remove('ship-hit'),260);}
   function win(){running=false;$('#shooter-status').textContent='BOSS URSSAF DÉTRUIT';$('#shooter-dialogue').classList.remove('bubble');$('#shooter-dialogue').innerHTML='<strong>MISSION ACCOMPLIE.</strong> Le cadeau final est sécurisé.';$('#shooter-start').textContent='RÉVÉLER LE CADEAU →';$('#shooter-start').disabled=false;}
   function showBossLine(index){bossPauseUntil=Date.now()+2600;const dialogue=$('#shooter-dialogue');dialogue.textContent=bossLines[index];dialogue.classList.add('bubble');$('#shooter-status').textContent=`⚠ URSSAF PARLE — PHASE ${index+1} ⚠`;}
-  function update(){ if(!running)return; if(boss && Date.now()<bossPauseUntil){draw();requestAnimationFrame(update);return;} if(boss)$('#shooter-dialogue').classList.remove('bubble'); bullets.forEach(b=>b.y-=7);enemyBullets.forEach(b=>b.y+=4);bullets=bullets.filter(b=>b.y>-20);enemyBullets=enemyBullets.filter(b=>b.y<440); enemies.forEach(e=>{if(!e.alive)return;e.x+=Math.sin((Date.now()/330)+e.phase)*.8;bullets.forEach(b=>{if(e.alive&&b.x>e.x&&b.x<e.x+38&&b.y>e.y&&b.y<e.y+32){e.alive=false;b.y=-30;}})}); if(!boss&&enemies.every(e=>!e.alive)){boss={x:140,hp:45,maxHp:45,dir:1,stage:0};lastBossShot=Date.now();showBossLine(0);} if(boss){const speed=boss.hp>30?1.25:boss.hp>15?2.3:3.7;boss.x+=boss.dir*speed;if(boss.x<10||boss.x>270)boss.dir*=-1;if(Date.now()-lastBossShot>3000){enemyBullets.push({x:boss.x+67,y:110});lastBossShot=Date.now();}bullets.forEach(b=>{if(b.x>boss.x&&b.x<boss.x+140&&b.y>38&&b.y<110){boss.hp--;b.y=-30;}});const nextStage=boss.hp<=15?2:boss.hp<=30?1:0;if(nextStage>boss.stage){boss.stage=nextStage;showBossLine(nextStage);}if(boss.hp<=0){draw();win();return;}}draw();requestAnimationFrame(update); }
-  function start(){makeEnemies();playerX=190;bullets=[];enemyBullets=[];boss=null;running=true;lastBossShot=0;bossPauseUntil=0;$('#shooter-status').textContent='VAGUE 1 — DÉTRUIS LES INTRUS';$('#shooter-dialogue').classList.remove('bubble');$('#shooter-dialogue').textContent='';$('#shooter-start').textContent='MISSION EN COURS…';$('#shooter-start').disabled=true;draw();requestAnimationFrame(update);}
+  function update(){ if(!running)return; if(boss && Date.now()<bossPauseUntil){draw();requestAnimationFrame(update);return;} if(boss)$('#shooter-dialogue').classList.remove('bubble'); bullets.forEach(b=>b.y-=7);enemyBullets.forEach(b=>b.y+=4);bullets=bullets.filter(b=>b.y>-20);enemyBullets=enemyBullets.filter(b=>{if(b.x>playerX-4&&b.x<playerX+54&&b.y>345&&b.y<424){hitShip();return false;}return b.y<440;}); enemies.forEach(e=>{if(!e.alive)return;e.x+=Math.sin((Date.now()/330)+e.phase)*.8;bullets.forEach(b=>{if(e.alive&&b.x>e.x&&b.x<e.x+38&&b.y>e.y&&b.y<e.y+32){e.alive=false;b.y=-30;}})}); if(!boss&&enemies.every(e=>!e.alive)){boss={x:140,hp:45,maxHp:45,dir:1,stage:0};lastBossShot=Date.now();showBossLine(0);} if(boss){const speed=boss.hp>30?1.25:boss.hp>15?2.3:3.7;boss.x+=boss.dir*speed;if(boss.x<10||boss.x>270)boss.dir*=-1;if(Date.now()-lastBossShot>3000){enemyBullets.push({x:boss.x+67,y:110});lastBossShot=Date.now();}bullets.forEach(b=>{if(b.x>boss.x&&b.x<boss.x+140&&b.y>38&&b.y<110){boss.hp--;b.y=-30;}});const nextStage=boss.hp<=15?2:boss.hp<=30?1:0;if(nextStage>boss.stage){boss.stage=nextStage;showBossLine(nextStage);}if(boss.hp<=0){draw();win();return;}}draw();requestAnimationFrame(update); }
+  function start(){makeEnemies();playerX=190;bullets=[];enemyBullets=[];boss=null;shipHealth=100;$('#ship-health-fill').style.width='100%';$('.ship-health').classList.remove('critical');running=true;lastBossShot=0;bossPauseUntil=0;$('#shooter-status').textContent='VAGUE 1 — DÉTRUIS LES INTRUS';$('#shooter-dialogue').classList.remove('bubble');$('#shooter-dialogue').textContent='';$('#shooter-start').textContent='MISSION EN COURS…';$('#shooter-start').disabled=true;draw();requestAnimationFrame(update);}
   function control(action){if(action==='left')playerX=Math.max(0,playerX-28);if(action==='right')playerX=Math.min(370,playerX+28);if(action==='shoot')shoot();draw();}
   $('#shooter-start').addEventListener('click',()=>running?null:($('#shooter-start').textContent.includes('RÉVÉLER')?showStep(7):start()));
   $$('[data-ship]').forEach(btn=>btn.addEventListener('click',()=>control(btn.dataset.ship)));
