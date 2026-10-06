@@ -239,7 +239,7 @@ function renderSnake() {
   function setDirection(next) { if(!playing) return; const n=directions[next]; if(n[0] !== -direction[0] || n[1] !== -direction[1]) queuedDirection=n; }
   function resumeGame() { canvas.classList.remove('snake-hit'); snake=buildSnake(3+score); direction=[1,0]; queuedDirection=direction; apples=[]; refillRollers(); resumePending=false; playing=true; draw(); $('#snake-result').textContent=''; $('#snake-start').textContent='JEU EN COURS…'; $('#snake-start').disabled=true; timer=setInterval(tick,125); }
   function start() { clearInterval(timer); snakeFinished=false; resumePending=false; snake=buildSnake(3); direction=[1,0]; queuedDirection=direction; score=0; lives=3; apples=[]; refillRollers(); playing=true; draw(); $('#snake-score').textContent='ROLLERS : 0 / 30'; updateLives(); $('#snake-result').textContent=''; $('#snake-start').textContent='JEU EN COURS…'; $('#snake-start').disabled=true; timer=setInterval(tick,125); }
-  $('#snake-start').addEventListener('click', () => snakeFinished ? renderShooter() : (resumePending ? resumeGame() : start()));
+  $('#snake-start').addEventListener('click', () => snakeFinished ? renderQuiz() : (resumePending ? resumeGame() : start()));
   $$('[data-dir]').forEach(button => button.addEventListener('click', () => setDirection(button.dataset.dir)));
   let touchStart;
   canvas.addEventListener('touchstart', event => { touchStart = event.changedTouches[0]; }, { passive: true });
@@ -250,6 +250,32 @@ function renderSnake() {
   headImage.onload = draw;
   rollerImage.onload = draw;
   draw();
+}
+
+function renderQuiz() {
+  const questions = [
+    { question: 'En quelle année Titeuf s’est-il crevé un œil ?', answers: ['2004', '2006', '2009', '2012'], correct: 1, detail: 'Titeuf avait décidément décidé de vivre dangereusement.' },
+    { question: 'Combien de chatons Ruby a-t-elle eus au total ?', answers: ['8', '11', '12', '15'], correct: 1, detail: 'Onze mini-Ruby. Une vraie usine à chatons.' },
+    { question: 'Pour combien de personnes était l’osso bucco que Charlie a allègrement mangé ?', answers: ['4 personnes', '6 personnes', '8 personnes', 'Toute la famille'], correct: 2, detail: 'Charlie avait faim. Très faim.' }
+  ];
+  let index = 0, score = 0;
+  $('#money-title').innerHTML = '500 €<br /><em>QUIZZ SOUVENIRS.</em>';
+  $('#money-copy').textContent = 'Réponds aux archives familiales pour débloquer le prochain palier.';
+  function showQuestion() {
+    const item = questions[index];
+    $('#money-choices').innerHTML = `<div class="quiz-wrap"><p class="quiz-count">QUESTION ${index + 1} / ${questions.length}</p><h3>${item.question}</h3><div class="quiz-answers">${item.answers.map((answer, answerIndex) => `<button class="torture" data-answer="${answerIndex}">${answer}</button>`).join('')}</div><p class="quiz-feedback" id="quiz-feedback"></p></div>`;
+    $$('[data-answer]').forEach(button => button.addEventListener('click', () => {
+      const selected = Number(button.dataset.answer);
+      const correct = selected === item.correct;
+      if (correct) score++;
+      $$('[data-answer]').forEach(choice => { choice.disabled = true; choice.classList.toggle('quiz-correct', Number(choice.dataset.answer) === item.correct); choice.classList.toggle('quiz-wrong', Number(choice.dataset.answer) === selected && !correct); });
+      $('#quiz-feedback').innerHTML = correct ? `<strong>BIEN JOUÉ.</strong> ${item.detail}` : `<strong>PRESQUE.</strong> La bonne réponse était : ${item.answers[item.correct]}. ${item.detail}`;
+      const next = document.createElement('button'); next.className = 'action'; next.innerHTML = index === questions.length - 1 ? 'DÉBLOQUER 750 € <b>→</b>' : 'QUESTION SUIVANTE <b>→</b>';
+      next.addEventListener('click', () => { index++; index === questions.length ? renderShooter() : showQuestion(); });
+      $('#quiz-feedback').after(next);
+    }));
+  }
+  showQuestion();
 }
 
 function renderShooter() {
