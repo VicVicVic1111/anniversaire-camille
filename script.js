@@ -1,7 +1,6 @@
 // ────────────────────────────────────────────────────────────
 // PERSONNALISATION RAPIDE
 const CONFIG = {
-  devMode: true, // passe à false avant d’envoyer le lien à Camille
   prenom: 'Camille',
   montantFinal: 1000,
   devise: '€',
@@ -28,41 +27,32 @@ function showStep(number) {
 }
 
 setNames();
-$('#dev-nav').hidden = !CONFIG.devMode;
-$$('[data-dev-step]').forEach(button => button.addEventListener('click', () => showStep(Number(button.dataset.devStep))));
-$$('[data-dev-shooter]').forEach(button => { button.hidden = !CONFIG.devMode; button.addEventListener('click', () => { showStep(6); renderShooter(); }); });
 $$('.participants').forEach(el => el.textContent = listNames(CONFIG.participants));
 $('#crew').innerHTML = CONFIG.participants.map(person => `<span>${person.toUpperCase()}</span>`).join('');
 $('#final-money').textContent = money(CONFIG.montantFinal);
 $$('[data-next]').forEach(button => button.addEventListener('click', () => showStep(currentStep + 1)));
 
-// Étape 2 : deux chutes, même machine, résultat très différent.
-let dropRound = 0;
+// Étape 2 : une seule simulation de chute.
+let dropComplete = false;
 $('#drop-button').addEventListener('click', () => {
   const zone = $('#drop-zone');
   const copy = $('#drop-copy');
   const button = $('#drop-button');
-  if (dropRound === 0) {
+  if (!dropComplete) {
     zone.classList.add('crash', 'shake');
     button.disabled = true;
-    setTimeout(() => { copy.innerHTML = '<strong>RÉSULTAT : ÉCHEC.</strong> Le PC a choisi la liberté. Résistance face à toi : 3,7 %.'; button.textContent = 'TESTER LE PROTOTYPE BLINDÉ →'; button.disabled = false; dropRound = 1; }, 1350);
-  } else if (dropRound === 1) {
-    $('#standard-pc').classList.add('hidden');
-    const armored = document.createElement('div'); armored.className = 'laptop armored';
-    zone.append(armored); zone.classList.add('armored-test', 'shake'); button.disabled = true;
-    setTimeout(() => { copy.innerHTML = '<strong>RÉSULTAT : SUCCÈS.</strong> Prototype intact. Certification obtenue : SŒUR-STD-666.'; button.textContent = 'IDENTIFIER LES RISQUES →'; button.disabled = false; dropRound = 2; }, 1200);
+    setTimeout(() => { copy.innerHTML = '<strong>AÏE&nbsp;! ET C’EST LA CHUTE.</strong> Simulation validée.'; button.innerHTML = 'IDENTIFIER LES RISQUES <b>→</b>'; button.disabled = false; dropComplete = true; }, 1350);
   } else showStep(3);
 });
 
 // Étape 3 : le passage est déverrouillé uniquement une fois tout assumé.
 const risks = [
-  'Je peux faire tomber mon ordinateur du canapé.',
-  'Je peux le faire tomber d’une table.',
-  'Je peux renverser un verre dessus.',
-  'Je peux le jeter dans mon sac sans aucune délicatesse.',
-  'Il peut se retrouver à proximité immédiate de rollers.',
-  'Je ne saurai probablement pas expliquer certaines futures rayures.',
-  'J’accepte que « j’en prends soin » soit une notion relativement subjective.'
+  'Ça peut tomber du canapé.',
+  'Ça peut tomber d’une table.',
+  'Un verre peut se renverser dessus.',
+  'Ça peut être jeté malencontreusement dans un sac.',
+  'Ça peut se faire massacrer en roller derby.',
+  'Ça peut être donné à manger aux poules.'
 ];
 $('#checklist').innerHTML = risks.map((risk, i) => `<label class="check"><input type="checkbox" data-risk="${i}"><span>${risk}</span></label>`).join('');
 $$('[data-risk]').forEach(input => input.addEventListener('change', () => {
@@ -76,12 +66,12 @@ $$('[data-risk]').forEach(input => input.addEventListener('change', () => {
   if (ready) $('#threat-number').textContent = 'CRITIQUE';
 }));
 
-// Étape 4 : les quatre premiers tests passent, le test quotidien finit par faire échouer le prototype.
+// Étape 4 : les quatre premiers tests passent, le test quotidien finit par faire échouer le cadeau.
 const tortureTests = [
-  ['CHUTE', 'Chute contrôlée : encaissée.', 'run-drop'],
-  ['LIQUIDE', 'Liquide hostile : repoussé.', 'run-liquid'],
-  ['IMPACT ROLLER', 'Impact roller : sans commentaire.', 'run-roller'],
-  ['SAC JETÉ', 'Sac lancé : le prototype ricane.', 'run-bag']
+  ['CHUTE', 'Chute contrôlée : cadeau intact.', 'run-drop'],
+  ['LIQUIDE', 'Liquide hostile : cadeau préservé.', 'run-liquid'],
+  ['IMPACT ROLLER', 'Impact roller : cadeau impassible.', 'run-roller'],
+  ['SAC JETÉ', 'Sac lancé : cadeau toujours debout.', 'run-bag']
 ];
 $('#torture-buttons').innerHTML = tortureTests.map(([name], i) => `<button class="torture" data-test="${i}">0${i + 1} — ${name}</button>`).join('');
 $$('[data-test]').forEach(button => button.addEventListener('click', () => {
@@ -90,15 +80,15 @@ $$('[data-test]').forEach(button => button.addEventListener('click', () => {
   const machine = $('.test-machine');
   machine.classList.remove('run-drop', 'run-liquid', 'run-roller', 'run-bag');
   machine.classList.add(tortureTests[index][2]);
-  $('#machine-status').textContent = 'ANALYSE DE L’IMPACT…';
+  $('#machine-status').textContent = 'ANALYSE DU CHOC…';
   setTimeout(() => { machine.classList.remove(tortureTests[index][2]); $('#machine-status').textContent = tortureTests[index][1].toUpperCase(); }, 1050);
   if ($$('[data-test]:disabled').length === tortureTests.length) setTimeout(() => $('#daily-button').classList.remove('hidden'), 1200);
 }));
 $('#daily-button').addEventListener('click', () => {
   const machine = $('.test-machine');
   machine.classList.add('fail');
-  $('#machine-status').textContent = 'ERREUR CRITIQUE : CAS D’USAGE IMPOSSIBLE.';
-  $('#failure').textContent = `ÉCHEC. Aucun ordinateur connu ne peut garantir une survie totale à une utilisation quotidienne par ${CONFIG.prenom.toUpperCase()}. Il va donc falloir te laisser choisir le tien.`;
+  $('#machine-status').textContent = 'ERREUR CRITIQUE : CADEAU EN DANGER.';
+  $('#failure').textContent = `ÉCHEC. Aucun cadeau connu ne peut garantir une survie totale à une utilisation quotidienne par ${CONFIG.prenom.toUpperCase()}. Il va donc falloir te laisser choisir le tien.`;
   $('#daily-button').disabled = true;
   setTimeout(() => { const go = document.createElement('button'); go.className = 'action'; go.textContent = 'VOIR LA SOLUTION →'; go.addEventListener('click', () => showStep(5)); $('#failure').after(go); }, 900);
 });
@@ -264,7 +254,7 @@ function renderSnake() {
 
 function renderShooter() {
   $('#money-title').innerHTML = '750 €<br /><em>NIVEAU BONUS.</em>';
-  $('#money-copy').textContent = 'Tu peux encore gagner plus. Détruis les vaisseaux, puis affronte le boss final URSSAF.';
+  $('#money-copy').textContent = 'Tu peux encore gagner plus. Détruis les vaisseaux, puis affronte le boss final.';
   $('#money-choices').innerHTML = `
     <div class="shooter-wrap">
       <canvas id="shooter-canvas" width="420" height="430" aria-label="Jeu de vaisseau pixelisé"></canvas>
@@ -272,12 +262,11 @@ function renderShooter() {
       <div class="ship-health" aria-label="Vie du vaisseau"><span>VIE CAMILLE</span><i><b id="ship-health-fill"></b></i></div>
       <div class="shooter-controls" aria-label="Contrôles du vaisseau"><button data-ship="left" aria-label="Aller à gauche">◀</button><button class="shoot" data-ship="shoot" aria-label="Tirer">TIRER</button><button data-ship="right" aria-label="Aller à droite">▶</button></div>
       <button class="action" id="shooter-start">LANCER LA MISSION <b>→</b></button>
-      <p class="shooter-dialogue" id="shooter-dialogue"></p>
     </div>`;
   const canvas = $('#shooter-canvas'), ctx = canvas.getContext('2d');
   const head = new Image(), logo = new Image(); head.src='assets/camille-head.png'; logo.src='assets/urssaf-logo.png';
   const subHeads = [new Image(), new Image(), new Image()]; subHeads[0].src='assets/subboss-one.avif'; subHeads[1].src='assets/subboss-two.png'; subHeads[2].src='assets/subboss-three.png';
-  let playerX=190, bullets=[], enemyBullets=[], enemies=[], subBosses=[], boss=null, running=false, lastShot=0, lastBossShot=0, bossPauseUntil=0, shipHealth=100;
+  let playerX=190, bullets=[], enemyBullets=[], enemies=[], subBosses=[], boss=null, running=false, lastShot=0, lastBossShot=0, bossPauseUntil=0, bossDialogue='', shipHealth=100;
   const bossLines=['DONNE-MOI TOUT TON ARGENT, CAMILLE.', 'T’AS PENSÉ À FAIRE TA DÉCLARATION ?', 'TU AS LE DROIT À L’ERREUR, CAMILLE, TU SAIS ?'];
   function makeEnemies(){ enemies=Array.from({length:12},(_,i)=>({x:30+(i%6)*64,y:52+Math.floor(i/6)*48,alive:true,phase:i})); }
   function makeSubBosses(){ subBosses=[{x:52,y:78,hp:7,maxHp:7,phase:0},{x:174,y:92,hp:7,maxHp:7,phase:2},{x:296,y:78,hp:7,maxHp:7,phase:4}]; }
@@ -286,13 +275,14 @@ function renderShooter() {
   function enemy(x,y){ctx.fillStyle='#ff3b30';ctx.fillRect(x+8,y,20,8);ctx.fillRect(x+3,y+8,30,16);ctx.fillRect(x,y+24,36,8);ctx.fillStyle='#f3efe2';ctx.fillRect(x+13,y+11,10,6);}
   function drawSubBoss(sub,index){const x=sub.x,y=sub.y;ctx.fillStyle='#6525a8';ctx.fillRect(x,y+35,68,28);ctx.fillStyle='#ceff1a';ctx.fillRect(x+8,y+59,52,12);ctx.fillStyle='#ff3b30';ctx.fillRect(x+28,y+70,12,12);if(subHeads[index].complete&&subHeads[index].naturalWidth){ctx.save();ctx.beginPath();ctx.arc(x+34,y+28,27,0,Math.PI*2);ctx.clip();ctx.drawImage(subHeads[index],x+7,y+1,54,54);ctx.restore();}else{ctx.fillStyle='#f3efe2';ctx.fillRect(x+16,y+8,36,38);}ctx.fillStyle='#f3efe2';ctx.fillRect(x,y-9,68,5);ctx.fillStyle='#ff3b30';ctx.fillRect(x,y-9,68*(sub.hp/sub.maxHp),5);}
   function drawBoss(){ const x=boss.x,y=38; ctx.fillStyle='#0c5cac';ctx.fillRect(x,y,140,70);ctx.fillStyle='#5da6e8';ctx.fillRect(x+12,y+12,116,46);ctx.fillStyle='#ff3b30';ctx.fillRect(x+4,y+63,132,12); if(logo.complete&&logo.naturalWidth)ctx.drawImage(logo,x+30,y+19,80,34); else {ctx.fillStyle='#fff';ctx.font='bold 18px Arial';ctx.fillText('URSSAF',x+30,y+43);} ctx.fillStyle='#f3efe2';ctx.fillRect(110,12,200,9);ctx.fillStyle='#ff3b30';ctx.fillRect(110,12,200*(boss.hp/boss.maxHp),9); }
-  function draw(){ctx.fillStyle='#070908';ctx.fillRect(0,0,canvas.width,canvas.height);for(let i=0;i<55;i++){ctx.fillStyle=i%4?'#f3efe2':'#ceff1a';ctx.fillRect((i*79)%420,(i*43)%430,2,2)} enemies.filter(e=>e.alive).forEach(e=>enemy(e.x,e.y));subBosses.filter(sub=>sub.hp>0).forEach(drawSubBoss);bullets.forEach(b=>rect(b.x,b.y,4,13,'#ceff1a'));enemyBullets.forEach(b=>rect(b.x,b.y,7,15,'#ff3b30')); if(boss)drawBoss();pixelShip(playerX,350);}
+  function drawDialogue(text){const words=text.split(' '),lines=[];let line='';ctx.font='bold 15px monospace';words.forEach(word=>{const next=`${line} ${word}`.trim();if(ctx.measureText(next).width>330&&line){lines.push(line);line=word;}else line=next;});if(line)lines.push(line);const height=lines.length*19+25,x=18,y=138;ctx.fillStyle='#f3efe2';ctx.fillRect(x,y,384,height);ctx.fillStyle='#ff3b30';ctx.fillRect(x+5,y+5,374,height-10);ctx.fillStyle='#11100f';ctx.fillRect(x+9,y+9,366,height-18);ctx.fillStyle='#f3efe2';ctx.fillRect(318,y+height,19,19);ctx.fillStyle='#11100f';ctx.fillRect(318,y+height,9,9);ctx.font='bold 15px monospace';lines.forEach((entry,index)=>ctx.fillText(entry,x+20,y+25+index*19));}
+  function draw(){ctx.fillStyle='#070908';ctx.fillRect(0,0,canvas.width,canvas.height);for(let i=0;i<55;i++){ctx.fillStyle=i%4?'#f3efe2':'#ceff1a';ctx.fillRect((i*79)%420,(i*43)%430,2,2)} enemies.filter(e=>e.alive).forEach(e=>enemy(e.x,e.y));subBosses.filter(sub=>sub.hp>0).forEach(drawSubBoss);bullets.forEach(b=>rect(b.x,b.y,4,13,'#ceff1a'));enemyBullets.forEach(b=>rect(b.x,b.y,7,15,'#ff3b30')); if(boss)drawBoss();pixelShip(playerX,350);if(bossDialogue)drawDialogue(bossDialogue);}
   function shoot(){if(!running||Date.now()-lastShot<220)return; bullets.push({x:playerX+23,y:340});lastShot=Date.now();}
   function hitShip(){shipHealth=Math.max(8,shipHealth-12);$('#ship-health-fill').style.width=`${shipHealth}%`;$('.ship-health').classList.toggle('critical',shipHealth<=32);canvas.classList.add('ship-hit');setTimeout(()=>canvas.classList.remove('ship-hit'),260);}
-  function win(){running=false;$('#shooter-status').textContent='BOSS URSSAF DÉTRUIT';$('#shooter-dialogue').classList.remove('bubble');$('#shooter-dialogue').innerHTML='<strong>MISSION ACCOMPLIE.</strong> Le cadeau final est sécurisé.';$('#shooter-start').textContent='RÉVÉLER LE CADEAU →';$('#shooter-start').disabled=false;}
-  function showBossLine(index){bossPauseUntil=Date.now()+2600;const dialogue=$('#shooter-dialogue');dialogue.textContent=bossLines[index];dialogue.classList.add('bubble');$('#shooter-status').textContent=`⚠ URSSAF PARLE — PHASE ${index+1} ⚠`;}
-  function update(){ if(!running)return; if(boss && Date.now()<bossPauseUntil){draw();requestAnimationFrame(update);return;} if(boss)$('#shooter-dialogue').classList.remove('bubble'); bullets.forEach(b=>b.y-=7);enemyBullets.forEach(b=>b.y+=4);bullets=bullets.filter(b=>b.y>-20);enemyBullets=enemyBullets.filter(b=>{if(b.x>playerX-4&&b.x<playerX+54&&b.y>345&&b.y<424){hitShip();return false;}return b.y<440;}); enemies.forEach(e=>{if(!e.alive)return;e.x+=Math.sin((Date.now()/330)+e.phase)*.8;bullets.forEach(b=>{if(e.alive&&b.x>e.x&&b.x<e.x+38&&b.y>e.y&&b.y<e.y+32){e.alive=false;b.y=-30;}})}); if(!boss&&enemies.every(e=>!e.alive)&&subBosses.length===0){makeSubBosses();$('#shooter-status').textContent='SOUS-BOSS — ESCADRON DES TÊTES VOLANTES';} subBosses.forEach((sub,index)=>{if(sub.hp<=0)return;sub.x+=Math.sin(Date.now()/520+sub.phase)*.7;bullets.forEach(b=>{if(sub.hp>0&&b.x>sub.x&&b.x<sub.x+68&&b.y>sub.y&&b.y<sub.y+76){sub.hp--;b.y=-30;}})}); if(!boss&&subBosses.length&&subBosses.every(sub=>sub.hp<=0)){boss={x:140,hp:45,maxHp:45,dir:1,stage:0};lastBossShot=Date.now();showBossLine(0);} if(boss){const speed=boss.hp>30?1.25:boss.hp>15?2.3:3.7;boss.x+=boss.dir*speed;if(boss.x<10||boss.x>270)boss.dir*=-1;if(Date.now()-lastBossShot>3000){enemyBullets.push({x:boss.x+67,y:110});lastBossShot=Date.now();}bullets.forEach(b=>{if(b.x>boss.x&&b.x<boss.x+140&&b.y>38&&b.y<110){boss.hp--;b.y=-30;}});const nextStage=boss.hp<=15?2:boss.hp<=30?1:0;if(nextStage>boss.stage){boss.stage=nextStage;showBossLine(nextStage);}if(boss.hp<=0){draw();win();return;}}draw();requestAnimationFrame(update); }
-  function start(){makeEnemies();playerX=190;bullets=[];enemyBullets=[];subBosses=[];boss=null;shipHealth=100;$('#ship-health-fill').style.width='100%';$('.ship-health').classList.remove('critical');running=true;lastBossShot=0;bossPauseUntil=0;$('#shooter-status').textContent='VAGUE 1 — DÉTRUIS LES INTRUS';$('#shooter-dialogue').classList.remove('bubble');$('#shooter-dialogue').textContent='';$('#shooter-start').textContent='MISSION EN COURS…';$('#shooter-start').disabled=true;draw();requestAnimationFrame(update);}
+  function win(){running=false;bossDialogue='';$('#shooter-status').textContent='BOSS URSSAF DÉTRUIT';$('#shooter-start').textContent='RÉVÉLER LE CADEAU →';$('#shooter-start').disabled=false;}
+  function showBossLine(index){bossPauseUntil=Date.now()+2600;bossDialogue=bossLines[index];$('#shooter-status').textContent=`⚠ URSSAF PARLE — PHASE ${index+1} ⚠`;}
+  function update(){ if(!running)return; if(boss && Date.now()<bossPauseUntil){draw();requestAnimationFrame(update);return;} if(boss)bossDialogue=''; bullets.forEach(b=>b.y-=7);enemyBullets.forEach(b=>b.y+=4);bullets=bullets.filter(b=>b.y>-20);enemyBullets=enemyBullets.filter(b=>{if(b.x>playerX-4&&b.x<playerX+54&&b.y>345&&b.y<424){hitShip();return false;}return b.y<440;}); enemies.forEach(e=>{if(!e.alive)return;e.x+=Math.sin((Date.now()/330)+e.phase)*.8;bullets.forEach(b=>{if(e.alive&&b.x>e.x&&b.x<e.x+38&&b.y>e.y&&b.y<e.y+32){e.alive=false;b.y=-30;}})}); if(!boss&&enemies.every(e=>!e.alive)&&subBosses.length===0){makeSubBosses();$('#shooter-status').textContent='SOUS-BOSS — ESCADRON DES TÊTES VOLANTES';} subBosses.forEach((sub,index)=>{if(sub.hp<=0)return;sub.x+=Math.sin(Date.now()/520+sub.phase)*.7;bullets.forEach(b=>{if(sub.hp>0&&b.x>sub.x&&b.x<sub.x+68&&b.y>sub.y&&b.y<sub.y+76){sub.hp--;b.y=-30;}})}); if(!boss&&subBosses.length&&subBosses.every(sub=>sub.hp<=0)){boss={x:140,hp:45,maxHp:45,dir:1,stage:0};lastBossShot=Date.now();showBossLine(0);} if(boss){const speed=boss.hp>30?1.25:boss.hp>15?2.3:3.7;boss.x+=boss.dir*speed;if(boss.x<10||boss.x>270)boss.dir*=-1;if(Date.now()-lastBossShot>3000){enemyBullets.push({x:boss.x+67,y:110});lastBossShot=Date.now();}bullets.forEach(b=>{if(b.x>boss.x&&b.x<boss.x+140&&b.y>38&&b.y<110){boss.hp--;b.y=-30;}});const nextStage=boss.hp<=15?2:boss.hp<=30?1:0;if(nextStage>boss.stage){boss.stage=nextStage;showBossLine(nextStage);}if(boss.hp<=0){draw();win();return;}}draw();requestAnimationFrame(update); }
+  function start(){makeEnemies();playerX=190;bullets=[];enemyBullets=[];subBosses=[];boss=null;shipHealth=100;$('#ship-health-fill').style.width='100%';$('.ship-health').classList.remove('critical');running=true;lastBossShot=0;bossPauseUntil=0;bossDialogue='';$('#shooter-status').textContent='VAGUE 1 — DÉTRUIS LES INTRUS';$('#shooter-start').textContent='MISSION EN COURS…';$('#shooter-start').disabled=true;draw();requestAnimationFrame(update);}
   function control(action){if(action==='left')playerX=Math.max(0,playerX-28);if(action==='right')playerX=Math.min(370,playerX+28);if(action==='shoot')shoot();draw();}
   $('#shooter-start').addEventListener('click',()=>running?null:($('#shooter-start').textContent.includes('RÉVÉLER')?showStep(7):start()));
   $$('[data-ship]').forEach(btn=>btn.addEventListener('click',()=>control(btn.dataset.ship)));

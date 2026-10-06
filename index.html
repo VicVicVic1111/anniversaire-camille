@@ -16,23 +16,16 @@
     <link rel="stylesheet" href="boss.css" />
     <link rel="stylesheet" href="health.css" />
     <link rel="stylesheet" href="game-controls.css" />
-    <link rel="stylesheet" href="dev-nav.css" />
   </head>
   <body>
     <div class="noise" aria-hidden="true"></div>
     <header class="topbar">
       <span>V.M. LABS / ANNIVERSAIRE</span><span id="progress">01 / 07</span>
     </header>
-    <nav class="dev-nav" id="dev-nav" aria-label="Raccourcis développeur">
-      <span>DEV / ALLER À</span>
-      <button data-dev-step="1">01 INTRO</button><button data-dev-step="2">02 TEST PC</button><button data-dev-step="3">03 RISQUES</button><button data-dev-step="4">04 TORTURE</button><button data-dev-step="5">05 FONDS</button><button data-dev-step="6">06 MONTANTS</button><button data-dev-step="7">07 FINAL</button>
-    </nav>
-
     <main id="app">
       <section class="step active intro" data-step="1">
         <p class="kicker">Dossier confidentiel · Rapport n°666</p>
         <h1>ALERTE<br />MATÉRIELLE</h1>
-        <button class="action" data-dev-shooter>DEV : TESTER LE JEU VAISSEAU <b>⚙</b></button>
         <div class="intro-grid">
           <p class="lead">Après plusieurs années d’observation, une conclusion s’impose : aucun objet électronique classique n’est suffisamment robuste pour <strong class="name">toi</strong>.</p>
           <div class="danger-stamp">DANGER<br /><span>MATÉRIEL</span></div>
@@ -42,40 +35,40 @@
       </section>
 
       <section class="step drop-step" data-step="2">
-        <p class="kicker">Essai comparatif / protocole 01</p>
-        <h2><span>UN PC NORMAL.</span><br />UNE MAUVAISE IDÉE.</h2>
+        <p class="kicker">Simulation / protocole 01</p>
+        <h2><span>POURQUOI LES PC</span><br /><em>NE RÉSISTENT PAS&nbsp;?</em></h2>
         <div class="drop-zone" id="drop-zone">
           <div class="laptop standard" id="standard-pc"><i></i><b></b></div>
           <div class="blast" id="blast">✹</div>
           <div class="floor"></div>
         </div>
         <div class="test-controls">
-          <p id="drop-copy">Test n°1 : ordinateur standard. Lancer la chute à vos risques et périls.</p>
-          <button class="action" id="drop-button">LANCER LE TEST <b>↓</b></button>
+          <p id="drop-copy">Observons ensemble une simulation de ce qui a pu se passer.</p>
+          <button class="action" id="drop-button">LANCER LA SIMULATION <b>↓</b></button>
         </div>
       </section>
 
       <section class="step checklist-step" data-step="3">
         <p class="kicker">Cahier des charges / validation obligatoire</p>
-        <h2>IDENTIFIE LES<br /><em>RISQUES.</em></h2>
-        <p class="lead">Coche tout. On veut savoir exactement à quoi le futur matériel va devoir survivre.</p>
+        <h2>IDENTIFIONS LES<br /><em>RISQUES.</em></h2>
+        <p class="lead">Dans cette optique, nous devons identifier les risques que pourrait avoir ton futur cadeau. Coche les cases qui te semblent probables&nbsp;:</p>
         <div class="checklist" id="checklist"></div>
         <div class="threat"><div class="threat-label"><span>Niveau de menace identifié</span><b id="threat-number">00 %</b></div><div class="meter"><i id="meter-fill"></i></div></div>
         <button class="action disabled" data-next id="check-next" disabled>VALIDER LE DIAGNOSTIC <b>→</b></button>
       </section>
 
       <section class="step endurance-step" data-step="4">
-        <p class="kicker">Test de résistance / prototype B-666</p>
+        <p class="kicker">Test de résistance / cadeau B-666</p>
         <h2>FAIS-LUI<br /><em>SUBIR L’ENFER.</em></h2>
         <div class="test-machine">
-          <div class="laptop armored" id="test-pc"><i></i><b></b><u></u></div>
+          <div class="gift" id="test-gift" aria-label="Cadeau emballé"><i></i><b></b><u></u></div>
           <div class="test-effects" aria-hidden="true">
             <span class="effect-drop">↓</span>
             <span class="effect-splash">✦</span>
             <span class="effect-roller"><i></i><b></b><em></em></span>
             <span class="effect-bag">▰</span>
           </div>
-          <div class="machine-status" id="machine-status">SYSTÈME PRÊT.</div>
+          <div class="machine-status" id="machine-status">CADEAU PRÊT.</div>
         </div>
         <div class="torture-buttons" id="torture-buttons"></div>
         <button class="action hidden" id="daily-button">TEST FINAL : UTILISATION QUOTIDIENNE PAR <span class="name">TOI</span> <b>⚠</b></button>
