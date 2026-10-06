@@ -31,7 +31,6 @@ $$('.participants').forEach(el => el.textContent = listNames(CONFIG.participants
 $('#crew').innerHTML = CONFIG.participants.map(person => `<span>${person.toUpperCase()}</span>`).join('');
 $('#final-money').textContent = money(CONFIG.montantFinal);
 $$('[data-next]').forEach(button => button.addEventListener('click', () => showStep(currentStep + 1)));
-$('#dev-shooter-shortcut').addEventListener('click', () => { showStep(6); renderShooter(); });
 
 // Étape 2 : une seule simulation de chute.
 let dropComplete = false;
